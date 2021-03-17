@@ -1,0 +1,239 @@
+<html>
+   <head>
+      <title>TEST</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+      <script type='text/javascript' src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+   </head>
+   <body>
+      <style type="text/css">
+        .text {
+            width: 95%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #text {
+            padding: 30px;
+            font-size: 30px;
+        }
+
+        .image {
+            max-width: 95%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 95%;
+        }
+
+        ins {
+            background-color: #d4fcbc;
+            text-decoration: none !important;
+        }
+
+        del {
+            background-color: #fbb6c2;
+            color: #555;
+            text-decoration: none !important;
+        }
+
+        #test {
+            font-size: 2.3vw
+        }
+
+        label {
+            display: block;
+        }
+    </style>
+      
+      <div id = "databinding" style = "">
+        <input id="choose-file" name="choose-file" type='file' v-on:change="openFile($event)" webkitdirectory directory multiple style="display: none;"><br>
+
+        <!-- <input id="upload" type="file" name="upload"> -->
+        <label class="custom-file-label" for="choose-file" style="padding: 10px; border: 1px solid; width: 10%; border-radius: 5px; color: red">Select json folder</label>
+
+        <input type="number" name="line" id="line" v-model="searchIndex">
+        <button id="search" v-on:click="search">find</button>
+        <div v-if="total != null" id='output' class="row">
+            <div class="image col-md-6" style="display: inline-block; width: 45%; position: relative">
+                <img :src="'imgs/' + total['path']" height="800px">
+            </div>
+            <div class="list-drug col-md-6" style="display: inline-block; width: 40%; padding: 15px 20px; position: relative; height: 800px; overflow-y: scroll;">
+                <div class="data" style="border: solid 1px; padding: 10px">
+                    <label>
+                        Chuẩn đoán bệnh:
+                    </label>
+                    <textarea class="form-control" type="text" name="time" v-model="total['result']['diagnose']"></textarea>
+                </div>
+                <div v-for="x, id in total['result']['listdrug']" class="data" style="border: solid 1px; padding: 10px">
+                    <h3>Index: {{ id }}</h3>
+                    <label>
+                        Tên thuốc
+                        <input class="form-control" type="text" v-model="x['drugname']">
+                    </label>
+                    <label>
+                        đơn vị thuốc (viên, ống, lọ....)
+                        <input class="form-control" type="text" v-model="x['drugtype']">
+                    </label>
+                    
+                    <label>
+                        giá tiền thuốc
+                        <input class="form-control" type="number" v-model="x['price']">
+                    </label>
+                    <label>
+                        số lượng thuốc
+                        <input class="form-control" type="text" v-model="x['quantity']">
+                    </label>
+                    <label>
+                        cách dùng thuốc
+                        <input class="form-control" type="text" v-model="x['usage']">
+                    </label>
+                    <label>
+                        số lần dùng thuốc trong một ngày
+                        <input class="form-control" type="number" v-model="x['frequency']">
+                    </label>
+                    <div class="">
+                        <label>
+                            thời gian uống
+                        </label>
+                        <input v-for="index in parseInt(x['frequency'])" class="form-control" type="text" v-model="x['time'][index - 1]" :placeholder="index">
+                    </div>
+                    <label>
+                        liều lượng uống trong 1 lần
+                        <input class="form-control" type="number" v-model="x['dose']">
+                    </label>
+                    <label>
+                        note
+                    </label>
+                    <textarea class="form-control" type="text" v-model="x['note']"></textarea>
+                    <button v-on:click="remove(id)">REMOVE</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <button id="save" v-on:click="save()">SAVE</button>
+            <button id="prev" v-on:click="prev()">PREV</button>
+            <button id="next" v-on:click="next()">NEXT</button>
+        </div>
+        <div class="col-md-6">
+            <button id="add" v-on:click="add()">ADD</button>
+        </div>
+      </div>
+      <script type = "text/javascript">
+         var vm = new Vue({
+            el: '#databinding',
+            data: {
+               total: null,
+               files: [],
+               searchIndex: 0,
+               count: 0,
+               data: null
+            },
+            computed :{
+               finalamount:function() {
+                  var to = this.convertto;
+                  var from = this.convertfrom;
+                  var final;
+                  return final;
+               }
+            },
+            methods: {
+              openFile: function (event) {
+                  var self = this;
+                  var input = event.target;
+
+                  let reader = new FileReader();
+                  reader.onload = function () {
+                    let data = reader.result;
+                    self.total = JSON.parse(data);
+                  };
+                  for (file of input.files) {
+                    this.files.push(file)
+                  }
+                  reader.readAsText(input.files[0]);
+              },
+              save: function() {
+                function encode( s ) {
+                    var out = [];
+                    for ( var i = 0; i < s.length; i++ ) {
+                        out[i] = s.charCodeAt(i);
+                    }
+                    return new Uint8Array( out );
+                }
+
+                var self = this;
+                function download() {
+                    let data = encode( JSON.stringify(self.total, null, 2) );
+                    var a = document.createElement("a");
+                    var blob = new Blob([JSON.stringify(self.total)], {type: "text/plain;charset=utf-8"});
+                    a.href = URL.createObjectURL(blob);
+                    a.download = self.files[self.count].name;
+                    a.click();
+                }
+                setTimeout(function () {
+                    download()
+                }, 500);
+              },
+              add: function() {
+                let new_drug = {
+                   "dose":"",
+                   "drugname":"",
+                   "drugtype":"",
+                   "frequency": 1,
+                   "note":"",
+                   "price": 0,
+                   "quantity": 1,
+                   "time":[],
+                   "usage":""
+                }
+                this.total['result']['listdrug'].push(new_drug);
+              },
+              remove: function(index) {
+                this.total['result']['listdrug'].splice(index, 1);
+              },
+              search: function() {
+                var self = this;
+                if (parseInt(this.searchIndex) >= 0 && parseInt(this.searchIndex) < this.files.length) {
+                  let reader = new FileReader();
+                  reader.onload = function () {
+                    let data = reader.result;
+                    self.total = JSON.parse(data);
+                  };
+                  self.count = parseInt(self.searchIndex);
+                  reader.readAsText(self.files[self.count]);
+                }
+              },
+              next: function() {
+                var self = this;
+                console.log(self.count);
+                if (this.count < this.files.length - 1) {
+                  let reader = new FileReader();
+                  reader.onload = function () {
+                    let data = reader.result;
+                    self.total = JSON.parse(data);
+                  };
+                  self.count += 1;
+                  reader.readAsText(self.files[self.count]);
+                }
+              },
+              prev: function() {
+                var self = this;
+                console.log(self.count);
+                if (self.count > 0) {
+                  let reader = new FileReader();
+                  reader.onload = function () {
+                    let data = reader.result;
+                    self.total = JSON.parse(data);
+                  };
+                  self.count -= 1
+                  reader.readAsText(self.files[self.count]);
+                }
+              }
+            }
+         });
+      </script>
+   </body>
+</html>

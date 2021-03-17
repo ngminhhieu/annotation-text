@@ -1,0 +1,60 @@
+{
+   "path":"1.jpeg",
+   "result":{
+      "diagnose":"Bướu-không độc khác;Nhiễm độc giáp (cường giáp) CCCCCCCCCCCCC",
+      "listdrug":[
+         {
+            "dose":"1",
+            "drugname":"Berlthyrox 100",
+            "drugtype":"viên",
+            "frequency":"1",
+            "note":"trước bữa ăn",
+            "price":"",
+            "quantity":"100",
+            "time":[
+               "sáng"
+            ],
+            "usage":"uống"
+         },
+         {
+            "dose":"1",
+            "drugname":"Levothyrox 50mcg",
+            "drugtype":"viên",
+            "frequency":"1",
+            "note":"trước bữa ăn thứ 4 hàng tuần",
+            "price":"",
+            "quantity":"40",
+            "time":[
+               "sáng"
+            ],
+            "usage":"uống"
+         },
+         {
+            "dose":"1",
+            "drugname":"Kalium Chloratum Biomedica",
+            "drugtype":"viên",
+            "frequency":"1",
+            "note":"sau bữa ăn",
+            "price":"",
+            "quantity":"100",
+            "time":[
+               "sáng"
+            ],
+            "usage":"uống"
+         },
+         {
+            "dose":"1",
+            "drugname":"Caldihasan",
+            "drugtype":"viên",
+            "frequency":"1",
+            "note":"sau bữa ăn",
+            "price":"",
+            "quantity":"100",
+            "time":[
+               "sáng"
+            ],
+            "usage":"uống"
+         }
+      ]
+   }
+}
